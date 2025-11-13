@@ -4,8 +4,9 @@
 
 @section('content')
 <!-- HERO -->
-<section id="hero" class="min-h-screen flex items-center bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">
-  <div class="container mx-auto px-6 lg:px-8 py-20">
+<section id="hero" class="min-h-screen flex items-center bg-gradient-to-br from-navy via-navy to-navy text-white relative">
+  <div class="absolute inset-0 bg-gradient-to-t from-navy via-transparent to-navy opacity-70"></div>
+  <div class="container mx-auto px-6 lg:px-8 py-20 relative z-10">
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
 
       <!-- LEFT: teks -->
@@ -37,16 +38,91 @@
 
       <!-- RIGHT: visual card -->
       <div class="lg:col-span-5 flex justify-center lg:justify-end" data-aos="zoom-in" data-aos-delay="120">
-        <div class="relative w-80 h-80 rounded-2xl overflow-hidden bg-gradient-to-br from-rose-900/30 to-black shadow-xl creative-card">
+        <div class="relative w-80 h-80 rounded-2xl overflow-hidden bg-gradient-to-br from-rose-900/30 to-navy shadow-xl creative-card transform hover:scale-105 transition-transform duration-300">
           <img src="{{ asset('assets/images/hero-sample.jpg') }}" alt="Project visual" class="object-cover w-full h-full">
           <!-- subtle overlay -->
-          <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+          <div class="absolute inset-0 bg-gradient-to-t from-navy/60 to-transparent"></div>
         </div>
       </div>
 
     </div>
   </div>
 </section>
+
+<!-- ================== BANNER SLIDER (Auto) ================== -->
+<section id="banner-slider" class="py-12 bg-transparent">
+  <div class="container mx-auto px-6 lg:px-8">
+    <div 
+      x-data="{
+        slides: [
+          { id: 1, img: '{{ asset('assets/images/banner-1.jpg') }}', title: 'Branding & Visual Identity', subtitle: 'Creative brand systems and posters' },
+          { id: 2, img: '{{ asset('assets/images/banner-2.jpg') }}', title: 'Photography', subtitle: 'Portraits & Event storytelling' },
+          { id: 3, img: '{{ asset('assets/images/banner-3.jpg') }}', title: 'Videography', subtitle: 'Short films & promos' },
+        ],
+        idx: 0,
+        intervalRef: null,
+        delay: 4500,
+        init() {
+          // start autoplay
+          this.start();
+        },
+        start() {
+          this.stop();
+          this.intervalRef = setInterval(() => {
+            this.next();
+          }, this.delay);
+        },
+        stop() {
+          if (this.intervalRef) clearInterval(this.intervalRef);
+          this.intervalRef = null;
+        },
+        go(i) {
+          this.idx = i % this.slides.length;
+        },
+        next() {
+          this.idx = (this.idx + 1) % this.slides.length;
+        }
+      }"
+      x-init="init()"
+      @mouseenter="stop()" @mouseleave="start()"
+      class="relative"
+    >
+
+      <!-- viewport -->
+      <div class="relative overflow-hidden rounded-xl">
+        <div class="flex transition-transform duration-700 ease-out"
+             :style="`transform: translateX(-${idx * 100}%); width: ${slides.length * 100}%`">
+          <template x-for="s in slides" :key="s.id">
+            <div class="w-full flex-shrink-0" style="width: 100%">
+              <div class="relative h-56 sm:h-72 md:h-80 lg:h-64 xl:h-80">
+                <img :src="s.img" alt="" class="object-cover w-full h-full">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+
+                <div class="absolute left-6 bottom-6 text-white">
+                  <div class="text-sm text-rose-400 font-semibold" x-text="s.title"></div>
+                  <div class="mt-1 text-lg font-bold" x-text="s.subtitle"></div>
+                </div>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <!-- dots -->
+      <div class="mt-4 flex justify-center items-center gap-2">
+        <template x-for="(s, i) in slides" :key="s.id">
+          <button 
+            @click="go(i); start()"
+            :class="i === idx ? 'w-8 h-2 rounded-full bg-rose-400' : 'w-3 h-3 rounded-full bg-gray-700/60'"
+            class="transition-all duration-200"
+            :aria-label="`Go to slide ${i+1}`"
+          ></button>
+        </template>
+      </div>
+    </div>
+  </div>
+</section>
+
 
 <!-- SERVICES -->
 <section id="services" class="py-20 bg-gradient-to-b from-gray-900 to-black text-white">
@@ -165,14 +241,16 @@
         <!-- Example items: on real project you will loop through projects from DB -->
         @php
           // contoh data sementara jika belum menggunakan DB
-          $works = [
-            ['id'=>1,'title'=>'Brand Poster A','category'=>'branding','thumb'=>'assets/images/works/work-1.jpg','year'=>'2025','slug'=>'brand-poster-a'],
-            ['id'=>2,'title'=>'Portrait Shoot','category'=>'photo','thumb'=>'assets/images/works/work-2.jpg','year'=>'2024','slug'=>'portrait-shoot'],
-            ['id'=>3,'title'=>'Promo Video','category'=>'video','thumb'=>'assets/images/works/work-3.jpg','year'=>'2025','slug'=>'promo-video'],
-            ['id'=>4,'title'=>'Brand Identity B','category'=>'branding','thumb'=>'assets/images/works/work-4.jpg','year'=>'2024','slug'=>'brand-identity-b'],
-            ['id'=>5,'title'=>'Event Photography','category'=>'photo','thumb'=>'assets/images/works/work-5.jpg','year'=>'2023','slug'=>'event-photography'],
-            ['id'=>6,'title'=>'Short Film','category'=>'video','thumb'=>'assets/images/works/work-6.jpg','year'=>'2025','slug'=>'short-film'],
-          ];
+          $works = $projects->map(function($project) {
+              return [
+                  'id' => $project->id,
+                  'title' => $project->title,
+                  'category' => $project->category,
+                  'thumb' => $project->thumbnail,
+                  'year' => $project->year,
+                  'slug' => $project->slug,
+              ];
+          });
         @endphp
 
         <template x-for="item in {{ json_encode($works) }}" :key="item.id">

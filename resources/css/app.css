@@ -55,3 +55,32 @@ html {
     animation: none !important;
   }
 }
+
+/* contact form subtle focus & input look */
+input:focus, textarea:focus {
+  outline: none;
+  box-shadow: 0 6px 20px rgba(2,6,23,0.5), 0 2px 8px rgba(255,20,85,0.03);
+}
+
+/* reuse shadow-soft jika sudah ada */
+.shadow-soft { box-shadow: 0 8px 28px rgba(2,6,23,0.6), 0 6px 18px rgba(255,20,85,0.04); }
+
+
+/* optional: haluskan image transform */
+#banner-slider img { transition: transform .6s ease; }
+#banner-slider img:hover { transform: scale(1.02); }
+
+/* Footer hover smooth */
+footer a {
+  transition: all .25s ease-in-out;
+}
+footer a:hover svg {
+  transform: scale(1.1);
+  transition: transform .25s ease;
+}
+
+
+/* smaller breakpoints */
+@media (max-width: 768px) {
+  footer .md\\:col-span-4 { grid-column: span 12 / span 12; }
+}
